@@ -1,16 +1,15 @@
-package cloud.application.service;
+package cloud.adapter.mongo;
 
 import cloud.application.model.File;
 import cloud.application.model.FileId;
 import cloud.application.ports.in.AddFileUseCase;
 import cloud.application.ports.out.SaveFile;
 
-public class FileService implements AddFileUseCase {
+public class FileMongoAdapter implements SaveFile {
 
-    SaveFile saveFile;
 
     @Override
-    public FileId addFile(File file) {
-        return saveFile.saveFile(file);
+    public FileId saveFile(File file) {
+        return null;
     }
 }

@@ -1,6 +1,6 @@
-package cloud.adapter.controllers.mapper;
+package cloud.adapter.api.mapper;
 
-import cloud.adapter.controllers.model.AddFileRequest;
+import cloud.adapter.api.model.AddFileRequest;
 import cloud.application.model.File;
 import org.mapstruct.Mapper;
 

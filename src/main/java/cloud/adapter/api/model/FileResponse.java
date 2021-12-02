@@ -1,4 +1,4 @@
-package cloud.adapter.controllers.model;
+package cloud.adapter.api.model;
 
 import cloud.application.model.FileId;
 
