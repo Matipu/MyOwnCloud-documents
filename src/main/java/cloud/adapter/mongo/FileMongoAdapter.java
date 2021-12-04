@@ -1,15 +1,18 @@
 package cloud.adapter.mongo;
 
+import cloud.adapter.mongo.mapper.FileEntityMapper;
+import cloud.adapter.mongo.repository.FileRepository;
 import cloud.application.model.File;
-import cloud.application.model.FileId;
-import cloud.application.ports.in.AddFileUseCase;
 import cloud.application.ports.out.SaveFile;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
-public class FileMongoAdapter implements SaveFile {
-
+public record FileMongoAdapter(FileRepository fileRepository,
+                               FileEntityMapper fileEntityMapper,
+                               GridFsTemplate gridFsTemplate) implements SaveFile {
 
     @Override
-    public FileId saveFile(File file) {
-        return null;
+    public void saveFile(File file) {
+        String gridFsId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+        fileRepository.save(fileEntityMapper.mapFileToFileEntity(file, gridFsId));
     }
 }
