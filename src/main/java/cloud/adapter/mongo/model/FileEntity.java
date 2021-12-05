@@ -17,5 +17,6 @@ public class FileEntity {
     private String path;
     private String name;
     private String gridFsId;
+    private String gridFsIconId;
     //private InputStream content;
 }

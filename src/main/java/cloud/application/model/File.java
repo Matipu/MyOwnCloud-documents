@@ -15,6 +15,7 @@ public class File {
     private String path;
     private String name;
     private InputStream content;
+    private InputStream iconContent;
     private String contentType;
 
 }

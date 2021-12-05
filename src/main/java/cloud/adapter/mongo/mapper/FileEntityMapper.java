@@ -6,11 +6,15 @@ import cloud.application.model.FileId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper
 public interface FileEntityMapper {
 
     @Mapping(source = "file.fileId", target = "id")
-    FileEntity mapFileToFileEntity(File file, String gridFsId);
+    FileEntity mapFileToFileEntity(File file, String gridFsId, String gridFsIconId);
+
+    List<File> mapFileEntityListToFileList(List<FileEntity> fileEntityList);
 
     @Mapping(source = "id", target = "fileId")
     File mapFileEntityToFile(FileEntity fileEntity);
