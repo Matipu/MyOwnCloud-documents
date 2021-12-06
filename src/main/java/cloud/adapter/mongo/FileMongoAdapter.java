@@ -25,7 +25,10 @@ public record FileMongoAdapter(FileRepository fileRepository,
     @Override
     public void saveFile(File file) {
         String gridFsId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
-        String gridFsIconId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+        String gridFsIconId = null;
+        if (file.getIconContent() != null) {
+            gridFsIconId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+        }
         fileRepository.save(fileEntityMapper.mapFileToFileEntity(file, gridFsId, gridFsIconId));
     }
 
@@ -38,7 +41,7 @@ public record FileMongoAdapter(FileRepository fileRepository,
     public List<File> getAllFiles() {
         List<FileEntity> fileEntities = fileRepository.findAll();
         List<File> files = new ArrayList<>();
-        for(FileEntity fileEntity : fileEntities) {
+        for (FileEntity fileEntity : fileEntities) {
             File file = fileEntityMapper.mapFileEntityToFile(fileEntity);
             file.setIconContent(getIconContent(fileEntity.getGridFsIconId()));
             files.add(file);
@@ -47,7 +50,7 @@ public record FileMongoAdapter(FileRepository fileRepository,
     }
 
     public InputStream getIconContent(String gridFsIconId) {
-        if(gridFsIconId == null) {
+        if (gridFsIconId == null) {
             return null;
         }
         GridFSFile gridFsFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(gridFsIconId)));

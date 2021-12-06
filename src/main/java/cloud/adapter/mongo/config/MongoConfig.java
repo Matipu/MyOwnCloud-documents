@@ -46,16 +46,16 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     }
 
     @Override
+    public Collection getMappingBasePackages() {
+        return Collections.singleton("cloud.adapter.mongo.repository");
+    }
+
+    @Override
     public MongoClient mongoClient() {
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connectionString))
                 .build();
 
         return MongoClients.create(mongoClientSettings);
-    }
-
-    @Override
-    public Collection getMappingBasePackages() {
-        return Collections.singleton("cloud.adapter.mongo.repository");
     }
 }

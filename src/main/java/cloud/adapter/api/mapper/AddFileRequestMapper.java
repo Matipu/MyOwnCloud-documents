@@ -17,7 +17,7 @@ public interface AddFileRequestMapper {
     @Mapping(target = "name", expression = "java(addFileRequest.getFile().getOriginalFilename())")
     @Mapping(target = "content", expression = "java(addFileRequest.getFile().getInputStream())")
     @Mapping(target = "contentType", expression = "java(addFileRequest.getFile().getContentType())")
-    @Mapping(target = "iconContent", expression = "java(addFileRequest.getIcon().getInputStream())")
+    @Mapping(target = "iconContent", expression = "java(getIconContent(addFileRequest))")
     @Mapping(target = "fileId", ignore = true)
     File mapToFile(AddFileRequest addFileRequest) throws IOException;
 
@@ -27,7 +27,14 @@ public interface AddFileRequestMapper {
     FileListElementResponse mapToFileListElementResponse(File file) throws IOException;
 
     default byte[] InputStreamToStringMapper(InputStream inputStream) throws IOException {
+        if (inputStream == null) {
+            return null;
+        }
         return inputStream.readAllBytes();
+    }
+
+    default InputStream getIconContent(AddFileRequest addFileRequest) throws IOException {
+        return addFileRequest.getIcon() == null ? null : addFileRequest.getIcon().getInputStream();
     }
 
     default FileId mapStringToFileId(String value) {
