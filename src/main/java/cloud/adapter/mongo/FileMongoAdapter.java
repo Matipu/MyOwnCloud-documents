@@ -24,7 +24,11 @@ public record FileMongoAdapter(FileRepository fileRepository,
 
     @Override
     public void saveFile(File file) {
-        String gridFsId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+        String gridFsId = null;
+        if (file.getContent() != null) {
+            gridFsId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+        }
+
         String gridFsIconId = null;
         if (file.getIconContent() != null) {
             gridFsIconId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
@@ -38,8 +42,8 @@ public record FileMongoAdapter(FileRepository fileRepository,
     }
 
     @Override
-    public List<File> getAllFiles() {
-        List<FileEntity> fileEntities = fileRepository.findAll();
+    public List<File> getFilesByPath(String path) {
+        List<FileEntity> fileEntities = fileRepository.findByPath(path);
         List<File> files = new ArrayList<>();
         for (FileEntity fileEntity : fileEntities) {
             File file = fileEntityMapper.mapFileEntityToFile(fileEntity);

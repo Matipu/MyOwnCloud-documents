@@ -9,5 +9,5 @@ public interface GetPersistedFile {
 
     File getFile(FileId fileId);
 
-    List<File> getAllFiles();
+    List<File> getFilesByPath(String path);
 }

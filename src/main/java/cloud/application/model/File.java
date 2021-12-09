@@ -13,6 +13,7 @@ public class File {
     @Setter
     private FileId fileId;
     private String path;
+    @Setter
     private String name;
     @Setter
     private InputStream content;

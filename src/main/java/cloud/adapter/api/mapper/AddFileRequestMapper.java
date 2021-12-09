@@ -1,7 +1,7 @@
 package cloud.adapter.api.mapper;
 
 import cloud.adapter.api.model.AddFileRequest;
-import cloud.adapter.api.model.FileListElementResponse;
+import cloud.adapter.api.model.AddFolderRequest;
 import cloud.application.model.File;
 import cloud.application.model.FileId;
 import org.mapstruct.Mapper;
@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 @Mapper
 public interface AddFileRequestMapper {
@@ -21,21 +20,8 @@ public interface AddFileRequestMapper {
     @Mapping(target = "fileId", ignore = true)
     File mapToFile(AddFileRequest addFileRequest) throws IOException;
 
-    List<FileListElementResponse> mapToFileListElementResponseList(List<File> allFiles) throws IOException;
-
-    @Mapping(target = "id", source = "fileId")
-    FileListElementResponse mapToFileListElementResponse(File file) throws IOException;
-
-    default byte[] InputStreamToStringMapper(InputStream inputStream) throws IOException {
-        if (inputStream == null) {
-            return null;
-        }
-        return inputStream.readAllBytes();
-    }
-
-    default InputStream getIconContent(AddFileRequest addFileRequest) throws IOException {
-        return addFileRequest.getIcon() == null ? null : addFileRequest.getIcon().getInputStream();
-    }
+    @Mapping(target = "contentType", constant = "folder")
+    File mapToFile(AddFolderRequest addFolderRequest) throws IOException;
 
     default FileId mapStringToFileId(String value) {
         return FileId.of(value);
@@ -43,5 +29,9 @@ public interface AddFileRequestMapper {
 
     default String mapFileIdToString(FileId fileId) {
         return fileId.getValue();
+    }
+
+    default InputStream getIconContent(AddFileRequest addFileRequest) throws IOException {
+        return addFileRequest.getIcon() == null ? null : addFileRequest.getIcon().getInputStream();
     }
 }
