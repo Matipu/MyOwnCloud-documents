@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static cloud.application.model.File.FOLDER_CONTENT_TYPE;
+
 @Mapper
 public interface AddFileRequestMapper {
 
@@ -20,7 +22,7 @@ public interface AddFileRequestMapper {
     @Mapping(target = "fileId", ignore = true)
     File mapToFile(AddFileRequest addFileRequest) throws IOException;
 
-    @Mapping(target = "contentType", constant = "folder")
+    @Mapping(target = "contentType", expression = "java(getFolderContentType())")
     File mapToFile(AddFolderRequest addFolderRequest) throws IOException;
 
     default FileId mapStringToFileId(String value) {
@@ -29,6 +31,10 @@ public interface AddFileRequestMapper {
 
     default String mapFileIdToString(FileId fileId) {
         return fileId.getValue();
+    }
+
+    default String getFolderContentType() {
+        return FOLDER_CONTENT_TYPE;
     }
 
     default InputStream getIconContent(AddFileRequest addFileRequest) throws IOException {

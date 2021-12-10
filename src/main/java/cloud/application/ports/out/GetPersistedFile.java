@@ -10,4 +10,6 @@ public interface GetPersistedFile {
     File getFile(FileId fileId);
 
     List<File> getFilesByPath(String path);
+
+    List<FileId> getFilesByPathRegex(String pathRegex);
 }

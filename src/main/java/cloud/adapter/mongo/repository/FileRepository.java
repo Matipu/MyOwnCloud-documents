@@ -9,4 +9,6 @@ public interface FileRepository extends MongoRepository<FileEntity, String> {
 
     List<FileEntity> findByPath(String path);
 
+    List<FileEntity> findByPathRegex(String pathRegex);
+
 }

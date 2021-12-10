@@ -6,6 +6,7 @@ import cloud.adapter.mongo.repository.FileRepository;
 import cloud.application.model.File;
 import cloud.application.model.FileId;
 import cloud.application.ports.out.GetPersistedFile;
+import cloud.application.ports.out.RemovePersistedFile;
 import cloud.application.ports.out.SaveFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,10 +18,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public record FileMongoAdapter(FileRepository fileRepository,
                                FileEntityMapper fileEntityMapper,
-                               GridFsTemplate gridFsTemplate) implements SaveFile, GetPersistedFile {
+                               GridFsTemplate gridFsTemplate) implements SaveFile, GetPersistedFile, RemovePersistedFile {
 
     @Override
     public void saveFile(File file) {
@@ -53,6 +56,13 @@ public record FileMongoAdapter(FileRepository fileRepository,
         return files;
     }
 
+    @Override
+    public List<FileId> getFilesByPathRegex(String pathRegex) {
+        List<FileEntity> fileEntities = fileRepository.findByPathRegex(pathRegex);
+
+        return fileEntities.stream().map(fileEntity -> FileId.of(fileEntity.getId())).collect(Collectors.toList());
+    }
+
     public InputStream getIconContent(String gridFsIconId) {
         if (gridFsIconId == null) {
             return null;
@@ -65,5 +75,15 @@ public record FileMongoAdapter(FileRepository fileRepository,
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void removeFile(FileId fileId) {
+        Optional<FileEntity> fileEntity = fileRepository.findById(fileId.getValue());
+        FileEntity file = fileEntity.orElseThrow();
+        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsIconId())));
+        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsId())));
+
+        fileRepository.deleteById(fileId.getValue());
     }
 }
