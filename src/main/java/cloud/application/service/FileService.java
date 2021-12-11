@@ -9,6 +9,7 @@ import cloud.application.ports.out.GetPersistedFile;
 import cloud.application.ports.out.RemovePersistedFile;
 import cloud.application.ports.out.SaveFile;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -30,13 +31,13 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
     }
 
     @Override
-    public File getFile(FileId fileId) {
-        return getPersistedFile.getFile(fileId);
+    public InputStream getFileContent(FileId fileId) {
+        return getPersistedFile.getFileContent(fileId);
     }
 
     @Override
     public void deleteFile(FileId id) {
-        File file = getFile(id);
+        File file = getPersistedFile.getFile(id);
         if (file.isFolder()) {
             List<FileId> fileIds = getPersistedFile.getFilesByPathRegex(Pattern.quote(file.getPath() + file.getName()) + "/.*");
             fileIds.forEach(removePersistedFile::removeFile);

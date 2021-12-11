@@ -2,10 +2,7 @@ package cloud.adapter.api.api;
 
 import cloud.adapter.api.mapper.AddFileRequestMapper;
 import cloud.adapter.api.mapper.FileResponseMapper;
-import cloud.adapter.api.model.AddFileRequest;
-import cloud.adapter.api.model.AddFileResponse;
-import cloud.adapter.api.model.AddFolderRequest;
-import cloud.adapter.api.model.FileListElementResponse;
+import cloud.adapter.api.model.*;
 import cloud.application.model.File;
 import cloud.application.model.FileId;
 import cloud.application.ports.in.AddFileUseCase;
@@ -43,8 +40,15 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
 
     @CrossOrigin
     @GetMapping(path = "/file", produces = {APPLICATION_JSON_VALUE})
-    List<FileListElementResponse> initFile(@RequestParam String path) throws IOException {
+    List<FileListElementResponse> getFilesByPath(@RequestParam String path) throws IOException {
         return fileResponseMapper.mapToFileListElementResponseList(getFileUseCase.getByPath(path));
+    }
+
+    @CrossOrigin
+    @GetMapping(path = "/file/content", produces = {APPLICATION_JSON_VALUE})
+    FileContentResponse getFileContent(@RequestParam String id) throws IOException {
+        byte[] content = fileResponseMapper.inputStreamToStringMapper(getFileUseCase.getFileContent(FileId.of(id)));
+        return new FileContentResponse(content);
     }
 
     @CrossOrigin
