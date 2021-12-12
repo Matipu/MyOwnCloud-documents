@@ -8,6 +8,7 @@ import cloud.application.model.FileId;
 import cloud.application.ports.out.GetPersistedFile;
 import cloud.application.ports.out.RemovePersistedFile;
 import cloud.application.ports.out.SaveFile;
+import cloud.application.ports.out.UpdatePersistedFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -23,7 +24,8 @@ import java.util.stream.Collectors;
 
 public record FileMongoAdapter(FileRepository fileRepository,
                                FileEntityMapper fileEntityMapper,
-                               GridFsTemplate gridFsTemplate) implements SaveFile, GetPersistedFile, RemovePersistedFile {
+                               GridFsTemplate gridFsTemplate) implements SaveFile, GetPersistedFile, RemovePersistedFile,
+        UpdatePersistedFile {
 
     @Override
     public void saveFile(File file) {
@@ -63,10 +65,35 @@ public record FileMongoAdapter(FileRepository fileRepository,
     }
 
     @Override
-    public List<FileId> getFilesByPathRegex(String pathRegex) {
+    public List<FileId> getFileIdsByPathRegex(String pathRegex) {
         List<FileEntity> fileEntities = fileRepository.findByPathRegex(pathRegex);
 
         return fileEntities.stream().map(fileEntity -> FileId.of(fileEntity.getId())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<File> getFilesByPathRegex(String pathRegex) {
+        List<FileEntity> fileEntities = fileRepository.findByPathRegex(pathRegex);
+
+        return fileEntities.stream().map(fileEntityMapper::mapFileEntityToFile).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateFile(File file) {
+        FileEntity fileEntity = fileRepository.findById(file.getFileId().getValue()).orElseThrow();
+        fileEntity.setName(file.getName());
+        fileEntity.setPath(file.getPath());
+        fileRepository.save(fileEntity);
+    }
+
+    @Override
+    public void removeFile(FileId fileId) {
+        Optional<FileEntity> fileEntity = fileRepository.findById(fileId.getValue());
+        FileEntity file = fileEntity.orElseThrow();
+        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsIconId())));
+        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsId())));
+
+        fileRepository.deleteById(fileId.getValue());
     }
 
     InputStream getContent(String gridFsId) {
@@ -81,15 +108,5 @@ public record FileMongoAdapter(FileRepository fileRepository,
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public void removeFile(FileId fileId) {
-        Optional<FileEntity> fileEntity = fileRepository.findById(fileId.getValue());
-        FileEntity file = fileEntity.orElseThrow();
-        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsIconId())));
-        gridFsTemplate.delete(new Query(Criteria.where("_id").is(file.getGridFsId())));
-
-        fileRepository.deleteById(fileId.getValue());
     }
 }
