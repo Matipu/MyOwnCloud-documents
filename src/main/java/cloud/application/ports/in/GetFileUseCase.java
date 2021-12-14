@@ -10,5 +10,7 @@ public interface GetFileUseCase {
 
     List<File> getByPath(String path);
 
+    InputStream getFileIcon(FileId fileId);
+
     InputStream getFileContent(FileId fileId);
 }

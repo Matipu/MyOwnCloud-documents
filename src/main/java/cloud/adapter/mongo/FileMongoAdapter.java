@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public record FileMongoAdapter(FileRepository fileRepository,
 
         String gridFsIconId = null;
         if (file.getIconContent() != null) {
-            gridFsIconId = gridFsTemplate.store(file.getContent(), file.getName(), file.getContentType()).toString();
+            gridFsIconId = gridFsTemplate.store(file.getIconContent(), file.getName(), file.getContentType()).toString();
         }
         fileRepository.save(fileEntityMapper.mapFileToFileEntity(file, gridFsId, gridFsIconId));
     }
@@ -53,15 +52,15 @@ public record FileMongoAdapter(FileRepository fileRepository,
     }
 
     @Override
+    public InputStream getFileIcon(FileId fileId) {
+        FileEntity file = fileRepository.findById(fileId.getValue()).orElseThrow();
+        return getContent(file.getGridFsIconId());
+    }
+
+    @Override
     public List<File> getFilesByPath(String path) {
         List<FileEntity> fileEntities = fileRepository.findByPath(path);
-        List<File> files = new ArrayList<>();
-        for (FileEntity fileEntity : fileEntities) {
-            File file = fileEntityMapper.mapFileEntityToFile(fileEntity);
-            file.setIconContent(getContent(fileEntity.getGridFsIconId()));
-            files.add(file);
-        }
-        return files;
+        return fileEntities.stream().map(fileEntityMapper::mapFileEntityToFile).collect(Collectors.toList());
     }
 
     @Override
@@ -74,7 +73,6 @@ public record FileMongoAdapter(FileRepository fileRepository,
     @Override
     public List<File> getFilesByPathRegex(String pathRegex) {
         List<FileEntity> fileEntities = fileRepository.findByPathRegex(pathRegex);
-
         return fileEntities.stream().map(fileEntityMapper::mapFileEntityToFile).collect(Collectors.toList());
     }
 
@@ -101,7 +99,7 @@ public record FileMongoAdapter(FileRepository fileRepository,
             return null;
         }
         GridFSFile gridFsFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(gridFsId)));
-        GridFsResource resource = gridFsTemplate.getResource(gridFsFile.getFilename());
+        GridFsResource resource = gridFsTemplate.getResource(gridFsFile);
         try {
             return resource.getInputStream();
         } catch (IOException e) {

@@ -21,7 +21,7 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
 
     @Override
     public File addFile(File file) {
-        file.setName(computeFileName(file));
+        file.setName(computeFileName(file.getPath(), file.getName()));
         file.setFileId(generateFileId());
         saveFile.saveFile(file);
 
@@ -39,17 +39,23 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
     }
 
     @Override
+    public InputStream getFileIcon(FileId fileId) {
+        return getPersistedFile.getFileIcon(fileId);
+    }
+
+    @Override
     public void updateFile(FileId id, String name) {
         File file = getPersistedFile.getFile(id);
+        final String computedName = computeFileName(file.getPath(), name);
         if (file.isFolder()) {
             String pathFolderNamePattern = Pattern.quote(file.getPath() + file.getName());
             List<File> childFiles = getPersistedFile.getFilesByPathRegex(pathFolderNamePattern);
             childFiles.forEach((childFile) -> {
-                changeParentFolderName(childFile, file.getPath() + file.getName(), name);
+                changeParentFolderName(childFile, file.getPath() + file.getName(), computedName);
                 updatePersistedFile.updateFile(childFile);
             });
         }
-        file.setName(name);
+        file.setName(computedName);
         updatePersistedFile.updateFile(file);
     }
 
@@ -70,10 +76,9 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
         file.setPath(file.getPath().replaceFirst(Pattern.quote(changedPath), newPath));
     }
 
-    private String computeFileName(File file) {
-        List<File> filesInActualFolder = getPersistedFile.getFilesByPath(file.getPath());
+    private String computeFileName(String path, String originalFileName) {
+        List<File> filesInActualFolder = getPersistedFile.getFilesByPath(path);
         int postfix = 1;
-        String originalFileName = file.getName();
         String fileName = originalFileName;
         while (isFileNameExistsInFolder(fileName, filesInActualFolder)) {
             fileName = originalFileName + " (" + postfix + ")";

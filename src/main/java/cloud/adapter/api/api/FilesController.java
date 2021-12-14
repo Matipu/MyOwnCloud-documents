@@ -54,6 +54,13 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
     }
 
     @CrossOrigin
+    @GetMapping(path = "/file/icon", produces = {APPLICATION_JSON_VALUE})
+    FileContentResponse getFileIcon(@RequestParam String id) throws IOException {
+        byte[] content = fileResponseMapper.inputStreamToStringMapper(getFileUseCase.getFileIcon(FileId.of(id)));
+        return new FileContentResponse(content);
+    }
+
+    @CrossOrigin
     @PatchMapping(path = "/file")
     String updateFile(@RequestParam String id, @RequestBody UpdateFileRequest updateFileRequest) {
         updateFileUseCase.updateFile(FileId.of(id), updateFileRequest.getName());
