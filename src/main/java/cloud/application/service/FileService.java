@@ -6,17 +6,13 @@ import cloud.application.ports.in.AddFileUseCase;
 import cloud.application.ports.in.DeleteFileUseCase;
 import cloud.application.ports.in.GetFileUseCase;
 import cloud.application.ports.in.UpdateFileUseCase;
-import cloud.application.ports.out.GetPersistedFile;
-import cloud.application.ports.out.RemovePersistedFile;
-import cloud.application.ports.out.SaveFile;
-import cloud.application.ports.out.UpdatePersistedFile;
+import cloud.application.ports.out.*;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, RemovePersistedFile removePersistedFile,
-                          UpdatePersistedFile updatePersistedFile)
+                          UpdatePersistedFile updatePersistedFile, FileCompressor fileCompressor)
         implements AddFileUseCase, GetFileUseCase, DeleteFileUseCase, UpdateFileUseCase {
 
     @Override
@@ -34,13 +30,14 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
     }
 
     @Override
-    public InputStream getFileContent(FileId fileId) {
-        return getPersistedFile.getFileContent(fileId);
-    }
-
-    @Override
-    public InputStream getFileIcon(FileId fileId) {
-        return getPersistedFile.getFileIcon(fileId);
+    public File getFileToDownload(FileId fileId) {
+        File file = getPersistedFile.getFile(fileId);
+        if (file.isFolder()) {
+            List<File> childFiles = getFilesInFolder(file.getPath(), file.getName());
+            return fileCompressor.compressFilesToZip(childFiles, file.getName() + ".zip", file.getPath());
+        }
+        file.setContent(getPersistedFile.getFileContent(fileId));
+        return file;
     }
 
     @Override
@@ -48,8 +45,7 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
         File file = getPersistedFile.getFile(id);
         final String computedName = computeFileName(file.getPath(), name);
         if (file.isFolder()) {
-            String pathFolderNamePattern = Pattern.quote(file.getPath() + file.getName());
-            List<File> childFiles = getPersistedFile.getFilesByPathRegex(pathFolderNamePattern);
+            List<File> childFiles = getFilesInFolder(file.getPath(), file.getName());
             childFiles.forEach((childFile) -> {
                 changeParentFolderName(childFile, file.getPath() + file.getName(), computedName);
                 updatePersistedFile.updateFile(childFile);
@@ -57,6 +53,11 @@ public record FileService(SaveFile saveFile, GetPersistedFile getPersistedFile, 
         }
         file.setName(computedName);
         updatePersistedFile.updateFile(file);
+    }
+
+    private List<File> getFilesInFolder(String path, String name) {
+        String pathFolderNamePattern = Pattern.quote(path + name);
+        return getPersistedFile.getFilesByPathRegex(pathFolderNamePattern);
     }
 
     @Override

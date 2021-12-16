@@ -5,13 +5,13 @@ import cloud.adapter.api.mapper.FileResponseMapper;
 import cloud.adapter.api.model.*;
 import cloud.application.model.File;
 import cloud.application.model.FileId;
-import cloud.application.ports.in.AddFileUseCase;
-import cloud.application.ports.in.DeleteFileUseCase;
-import cloud.application.ports.in.GetFileUseCase;
-import cloud.application.ports.in.UpdateFileUseCase;
+import cloud.application.ports.in.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,6 +23,7 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
                               FileResponseMapper fileResponseMapper,
                               AddFileUseCase addFileUseCase,
                               GetFileUseCase getFileUseCase,
+                              GetContentFileUseCase getContentFileUseCase,
                               DeleteFileUseCase deleteFileUseCase,
                               UpdateFileUseCase updateFileUseCase) {
 
@@ -49,15 +50,30 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
     @CrossOrigin
     @GetMapping(path = "/file/content", produces = {APPLICATION_JSON_VALUE})
     FileContentResponse getFileContent(@RequestParam String id) throws IOException {
-        byte[] content = fileResponseMapper.inputStreamToStringMapper(getFileUseCase.getFileContent(FileId.of(id)));
+        byte[] content = fileResponseMapper.inputStreamToStringMapper(getContentFileUseCase.getFileContent(FileId.of(id)));
         return new FileContentResponse(content);
     }
 
     @CrossOrigin
     @GetMapping(path = "/file/icon", produces = {APPLICATION_JSON_VALUE})
     FileContentResponse getFileIcon(@RequestParam String id) throws IOException {
-        byte[] content = fileResponseMapper.inputStreamToStringMapper(getFileUseCase.getFileIcon(FileId.of(id)));
+        byte[] content = fileResponseMapper.inputStreamToStringMapper(getContentFileUseCase.getFileIcon(FileId.of(id)));
         return new FileContentResponse(content);
+    }
+
+    @CrossOrigin
+    @GetMapping(path = "/file/download")
+    public @ResponseBody
+    HttpEntity<byte[]> downloadFile(@RequestParam String id, HttpServletResponse response) throws IOException {
+        File fileWithContent = getFileUseCase.getFileToDownload(FileId.of(id));
+        byte[] content = fileResponseMapper.inputStreamToStringMapper(fileWithContent.getContent());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("fileName", fileWithContent.getName());
+        headers.add("fileContentType", fileWithContent.getContentType());
+        headers.add("Access-Control-Expose-Headers", "*");
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        return new HttpEntity<>(content, headers);
     }
 
     @CrossOrigin
