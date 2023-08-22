@@ -1,8 +1,9 @@
 package cloud.application.ports.out;
 
 import cloud.application.model.File;
+import cloud.application.model.FileId;
 
 public interface SaveFile {
 
-    void saveFile(File file);
+    FileId saveFile(File file);
 }

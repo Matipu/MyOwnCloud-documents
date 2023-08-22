@@ -1,7 +1,7 @@
-package cloud.adapter.controllers.config;
+package cloud.adapter.api.config;
 
-import cloud.adapter.controllers.mapper.AddFileRequestMapper;
-import cloud.adapter.controllers.mapper.AddFileRequestMapperImpl;
+import cloud.adapter.api.mapper.AddFileRequestMapper;
+import cloud.adapter.api.mapper.AddFileRequestMapperImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
