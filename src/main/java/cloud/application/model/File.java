@@ -1,9 +1,20 @@
 package cloud.application.model;
 
-import org.springframework.web.multipart.MultipartFile;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.InputStream;
+
+@Getter
+@AllArgsConstructor
 public class File {
 
-    FileId fileId;
-    MultipartFile multipartFile;
+    @Setter
+    private FileId fileId;
+    private String path;
+    private String name;
+    private InputStream content;
+    private String contentType;
+
 }
