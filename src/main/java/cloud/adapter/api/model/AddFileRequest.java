@@ -9,4 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class AddFileRequest {
     String path;
     MultipartFile file;
+    MultipartFile icon;
 }
