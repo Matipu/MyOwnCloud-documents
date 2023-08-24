@@ -10,5 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class FileListElementResponse {
 
-    MultipartFile icon;
+    String id;
+    String name;
+    String contentType;
+    byte[] iconContent;
 }

@@ -3,15 +3,14 @@ package cloud.adapter.api.api;
 import cloud.adapter.api.mapper.AddFileRequestMapper;
 import cloud.adapter.api.model.AddFileRequest;
 import cloud.adapter.api.model.AddFileResponse;
+import cloud.adapter.api.model.FileListElementResponse;
 import cloud.application.model.FileId;
 import cloud.application.ports.in.AddFileUseCase;
 import cloud.application.ports.in.GetFileUseCase;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -28,11 +27,10 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
         return new AddFileResponse(fileId.getValue());
     }
 
-    //@CrossOrigin
-    //@GetMapping(path = "/file", produces = {MULTIPART_FORM_DATA_VALUE})
-    //List<FileListElementResponse> initFile() throws IOException {
-    //    addFileRequestMapper.mapToFileListElementResponse(getFileUseCase.getAllFiles());
-    //    return new AddFileResponse(fileId.getValue());
-    //}
+    @CrossOrigin
+    @GetMapping(path = "/file", produces = {APPLICATION_JSON_VALUE})
+    List<FileListElementResponse> initFile() throws IOException {
+        return addFileRequestMapper.mapToFileListElementResponseList(getFileUseCase.getAllFiles());
+    }
 
 }
