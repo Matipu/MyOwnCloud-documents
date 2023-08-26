@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GetFileUseCase {
 
-    List<File> getAllFiles();
+    List<File> getByPath(String path);
 
     File getFile(FileId fileId);
 }
