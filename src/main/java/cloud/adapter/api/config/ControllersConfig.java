@@ -6,6 +6,7 @@ import cloud.adapter.api.mapper.AddFileRequestMapperImpl;
 import cloud.adapter.api.mapper.FileResponseMapper;
 import cloud.adapter.api.mapper.FileResponseMapperImpl;
 import cloud.application.ports.in.AddFileUseCase;
+import cloud.application.ports.in.DeleteFileUseCase;
 import cloud.application.ports.in.GetFileUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,8 @@ public class ControllersConfig {
     FilesController filesController(AddFileRequestMapper addFileRequestMapper,
                                     FileResponseMapper fileResponseMapper,
                                     AddFileUseCase addFileUseCase,
-                                    GetFileUseCase getFileUseCase) {
-        return new FilesController(addFileRequestMapper, fileResponseMapper, addFileUseCase, getFileUseCase);
+                                    GetFileUseCase getFileUseCase,
+                                    DeleteFileUseCase deleteFileUseCase) {
+        return new FilesController(addFileRequestMapper, fileResponseMapper, addFileUseCase, getFileUseCase, deleteFileUseCase);
     }
 }

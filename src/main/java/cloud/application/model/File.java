@@ -10,6 +10,8 @@ import java.io.InputStream;
 @AllArgsConstructor
 public class File {
 
+    public static final String FOLDER_CONTENT_TYPE = "folder";
+
     @Setter
     private FileId fileId;
     private String path;
@@ -21,4 +23,7 @@ public class File {
     private InputStream iconContent;
     private String contentType;
 
+    public boolean isFolder() {
+        return contentType.equals(FOLDER_CONTENT_TYPE);
+    }
 }

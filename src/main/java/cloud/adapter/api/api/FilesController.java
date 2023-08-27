@@ -7,7 +7,9 @@ import cloud.adapter.api.model.AddFileResponse;
 import cloud.adapter.api.model.AddFolderRequest;
 import cloud.adapter.api.model.FileListElementResponse;
 import cloud.application.model.File;
+import cloud.application.model.FileId;
 import cloud.application.ports.in.AddFileUseCase;
+import cloud.application.ports.in.DeleteFileUseCase;
 import cloud.application.ports.in.GetFileUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public record FilesController(AddFileRequestMapper addFileRequestMapper,
                               FileResponseMapper fileResponseMapper,
                               AddFileUseCase addFileUseCase,
-                              GetFileUseCase getFileUseCase) {
+                              GetFileUseCase getFileUseCase,
+                              DeleteFileUseCase deleteFileUseCase) {
 
     @CrossOrigin
     @PostMapping(path = "/file", consumes = {MULTIPART_FORM_DATA_VALUE}, produces = {APPLICATION_JSON_VALUE})
@@ -44,4 +47,10 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
         return fileResponseMapper.mapToFileListElementResponseList(getFileUseCase.getByPath(path));
     }
 
+    @CrossOrigin
+    @DeleteMapping(path = "/file")
+    String deleteFile(@RequestParam String id) {
+        deleteFileUseCase.deleteFile(FileId.of(id));
+        return "ok";
+    }
 }
