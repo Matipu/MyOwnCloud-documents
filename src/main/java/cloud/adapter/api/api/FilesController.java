@@ -8,6 +8,7 @@ import cloud.application.model.FileId;
 import cloud.application.ports.in.AddFileUseCase;
 import cloud.application.ports.in.DeleteFileUseCase;
 import cloud.application.ports.in.GetFileUseCase;
+import cloud.application.ports.in.UpdateFileUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,8 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
                               FileResponseMapper fileResponseMapper,
                               AddFileUseCase addFileUseCase,
                               GetFileUseCase getFileUseCase,
-                              DeleteFileUseCase deleteFileUseCase) {
+                              DeleteFileUseCase deleteFileUseCase,
+                              UpdateFileUseCase updateFileUseCase) {
 
     @CrossOrigin
     @PostMapping(path = "/file", consumes = {MULTIPART_FORM_DATA_VALUE}, produces = {APPLICATION_JSON_VALUE})
@@ -49,6 +51,13 @@ public record FilesController(AddFileRequestMapper addFileRequestMapper,
     FileContentResponse getFileContent(@RequestParam String id) throws IOException {
         byte[] content = fileResponseMapper.inputStreamToStringMapper(getFileUseCase.getFileContent(FileId.of(id)));
         return new FileContentResponse(content);
+    }
+
+    @CrossOrigin
+    @PatchMapping(path = "/file")
+    String updateFile(@RequestParam String id, @RequestBody UpdateFileRequest updateFileRequest) {
+        updateFileUseCase.updateFile(FileId.of(id), updateFileRequest.getName());
+        return "ok";
     }
 
     @CrossOrigin

@@ -14,6 +14,7 @@ public class File {
 
     @Setter
     private FileId fileId;
+    @Setter
     private String path;
     @Setter
     private String name;

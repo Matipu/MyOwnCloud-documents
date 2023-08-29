@@ -14,5 +14,7 @@ public interface GetPersistedFile {
 
     List<File> getFilesByPath(String path);
 
-    List<FileId> getFilesByPathRegex(String pathRegex);
+    List<FileId> getFileIdsByPathRegex(String pathRegex);
+
+    List<File> getFilesByPathRegex(String pathRegex);
 }
