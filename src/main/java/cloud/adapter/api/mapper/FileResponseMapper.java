@@ -11,25 +11,25 @@ import java.io.InputStream;
 import java.util.List;
 
 @Mapper
-public interface FileResponseMapper {
+public abstract class FileResponseMapper {
 
-    List<FileListElementResponse> mapToFileListElementResponseList(List<File> allFiles) throws IOException;
+    public abstract List<FileListElementResponse> mapToFileListElementResponseList(List<File> allFiles) throws IOException;
 
     @Mapping(target = "id", source = "fileId")
-    FileListElementResponse mapToFileListElementResponse(File file) throws IOException;
+    public abstract FileListElementResponse mapToFileListElementResponse(File file) throws IOException;
 
-    default byte[] InputStreamToStringMapper(InputStream inputStream) throws IOException {
+    public byte[] inputStreamToStringMapper(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
         }
         return inputStream.readAllBytes();
     }
 
-    default FileId mapStringToFileId(String value) {
+    FileId mapStringToFileId(String value) {
         return FileId.of(value);
     }
 
-    default String mapFileIdToString(FileId fileId) {
+    String mapFileIdToString(FileId fileId) {
         return fileId.getValue();
     }
 }
