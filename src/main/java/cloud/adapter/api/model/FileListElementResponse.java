@@ -12,5 +12,4 @@ public class FileListElementResponse {
     String id;
     String name;
     String contentType;
-    byte[] iconContent;
 }

@@ -12,6 +12,8 @@ public interface GetPersistedFile {
 
     InputStream getFileContent(FileId fileId);
 
+    InputStream getFileIcon(FileId fileId);
+
     List<File> getFilesByPath(String path);
 
     List<FileId> getFileIdsByPathRegex(String pathRegex);
